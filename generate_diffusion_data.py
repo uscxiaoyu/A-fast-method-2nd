@@ -6,29 +6,29 @@ import random
 
 
 class Diffuse:  # 默认网络结构为节点数量为10000，边为30000的随机网络
-    def __init__(self, p, q, G=nx.gnm_random_graph(10000, 30000), num_runs=30):
-        self.G = G
+    def __init__(self, p, q, g=nx.gnm_random_graph(10000, 30000), num_runs=30):
+        self.g = g
         self.p, self.q = p, q
         self.num_runs = num_runs
 
     def decision(self, i):  # 线性决策规则
-        dose = sum([self.G.node[k]['state'] for k in self.G.node[i]['neigh']])
+        dose = sum([self.g.node[k]['state'] for k in self.g.node[i]['neigh']])
         prob = self.p + self.q * dose
         return True if random.random() <= prob else False
 
     def single_diffuse(self):  # 单次扩散
-        for i in self.G.nodes_iter():
-            self.G.node[i]['neigh'] = self.G.neighbors(i)
-            self.G.node[i]['state'] = False
+        for i in self.g.nodes_iter():
+            self.g.node[i]['neigh'] = self.g.neighbors(i)  # g.neighbors(i)产生一个列表，而g.predecessors(i)产生一个迭代器
+            self.g.node[i]['state'] = False
 
-        non_adopt_set = [i for i in self.G.nodes() if not self.G.node[i]['state']]
+        non_adopt_set = [i for i in self.g.nodes() if not self.g.node[i]['state']]
         num_of_adopt = []
         for j in range(self.num_runs):
             x = 0
             random.shuffle(non_adopt_set)
             for i in non_adopt_set:
                 if self.decision(i):
-                    self.G.node[i]['state'] = True
+                    self.g.node[i]['state'] = True
                     non_adopt_set.remove(i)
                     x += 1
             num_of_adopt.append(x)
@@ -40,7 +40,7 @@ class Diffuse:  # 默认网络结构为节点数量为10000，边为30000的随�
 
 class Diffuse_gmm(Diffuse):
     def decision(self, i):  # gmm决策规则
-        dose = sum([self.G.node[k]['state'] for k in self.G.node[i]['neigh']])
+        dose = sum([self.g.node[k]['state'] for k in self.g.node[i]['neigh']])
         prob = 1 - (1 - self.p) * (1 - self.q) ** dose
         return True if random.random() <= prob else False
 
