@@ -12,16 +12,15 @@ class Diffuse:  # 默认网络结构为节点数量为10000，边为30000的随�
         self.num_runs = num_runs
 
     def decision(self, i):  # 线性决策规则
-        dose = sum([self.g.node[k]['state'] for k in self.g.node[i]['neigh']])
+        dose = sum([self.g.node[k]['state'] for k in self.g.neighbors(i)])  # g.neighbors(i)为迭代器
         prob = self.p + self.q * dose
         return True if random.random() <= prob else False
 
     def single_diffuse(self):  # 单次扩散
         for i in self.g.nodes_iter():
-            self.g.node[i]['neigh'] = self.g.neighbors(i)  # g.neighbors(i)产生一个列表，而g.predecessors(i)产生一个迭代器
             self.g.node[i]['state'] = False
 
-        non_adopt_set = [i for i in self.g.nodes() if not self.g.node[i]['state']]
+        non_adopt_set = [i for i in self.g if not self.g.node[i]['state']]
         num_of_adopt = []
         for j in range(self.num_runs):
             x = 0
