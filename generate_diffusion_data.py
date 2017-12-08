@@ -7,17 +7,18 @@ import random
 
 class Diffuse:  # 默认网络结构为节点数量为10000，边为30000的随机网络
     def __init__(self, p, q, g=nx.gnm_random_graph(10000, 30000), num_runs=30):
-        self.g = g
+        if not nx.is_directed(g):
+            self.g = g.to_directed()
         self.p, self.q = p, q
         self.num_runs = num_runs
 
     def decision(self, i):  # 线性决策规则
-        dose = sum([self.g.node[k]['state'] for k in self.g.neighbors(i)])  # g.neighbors(i)为迭代器
+        dose = sum([self.g.node[k]['state'] for k in self.g.predecessors(i)])
         prob = self.p + self.q * dose
         return True if random.random() <= prob else False
 
     def single_diffuse(self):  # 单次扩散
-        for i in self.g():
+        for i in self.g:
             self.g.node[i]['state'] = False
 
         non_adopt_set = [i for i in self.g if not self.g.node[i]['state']]
@@ -39,7 +40,7 @@ class Diffuse:  # 默认网络结构为节点数量为10000，边为30000的随�
 
 class Diffuse_gmm(Diffuse):
     def decision(self, i):  # gmm决策规则
-        dose = sum([self.g.node[k]['state'] for k in self.g.node[i]['neigh']])
+        dose = sum([self.g.node[k]['state'] for k in self.predecessors(i)])
         prob = 1 - (1 - self.p) * (1 - self.q) ** dose
         return True if random.random() <= prob else False
 
