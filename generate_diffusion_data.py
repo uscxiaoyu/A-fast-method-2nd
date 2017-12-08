@@ -17,7 +17,7 @@ class Diffuse:  # 默认网络结构为节点数量为10000，边为30000的随�
         return True if random.random() <= prob else False
 
     def single_diffuse(self):  # 单次扩散
-        for i in self.g.nodes_iter():
+        for i in self.g():
             self.g.node[i]['state'] = False
 
         non_adopt_set = [i for i in self.g if not self.g.node[i]['state']]
